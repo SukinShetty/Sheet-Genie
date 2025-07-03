@@ -275,7 +275,7 @@ class AIService:
                     "message": message.content or "Function executed successfully",
                     "function_results": function_results,
                     "updated_data": updated_data,
-                    "response": self._format_function_response(function_results)
+                    "response": self._format_ai_response(self._format_function_response(function_results))
                 }
             else:
                 # No function calls, just return the message
