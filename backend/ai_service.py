@@ -278,11 +278,12 @@ class AIService:
                     "response": self._format_ai_response(self._format_function_response(function_results))
                 }
             else:
-                # No function calls, just return the message
+                # No function calls, just return the message with formatting
+                formatted_response = self._format_ai_response(message.content)
                 return {
                     "success": True,
                     "message": message.content,
-                    "response": message.content,
+                    "response": formatted_response,
                     "updated_data": self.excel_helper.get_updated_data() if self.excel_helper else None
                 }
                 
