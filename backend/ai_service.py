@@ -336,18 +336,46 @@ class AIService:
             }
     
     def _format_function_response(self, function_results: List[Dict]) -> str:
-        """Format function results into a readable response"""
+        """Format function results into a readable response with bullet points"""
         if not function_results:
             return "No functions were executed."
         
         responses = []
         for result in function_results:
             if result.get("success"):
-                responses.append(result.get("message", "Function executed successfully"))
+                message = result.get("message", "Function executed successfully")
+                # Format as bullet point
+                responses.append(f"• {message}")
             else:
-                responses.append(f"Error: {result.get('error', 'Unknown error')}")
+                error_msg = result.get('error', 'Unknown error')
+                responses.append(f"• Error: {error_msg}")
         
         return "\n".join(responses)
+    
+    def _format_ai_response(self, text: str) -> str:
+        """Format AI response text into better bullet points"""
+        if not text:
+            return text
+            
+        # Split into sentences and convert to bullet points if it's a long paragraph
+        sentences = text.split('. ')
+        
+        # If it's already formatted or short, return as is
+        if '•' in text or '◦' in text or len(sentences) <= 2:
+            return text
+            
+        # If it's a long paragraph, convert to bullet points
+        if len(sentences) > 3:
+            formatted_points = []
+            for i, sentence in enumerate(sentences):
+                sentence = sentence.strip()
+                if sentence and not sentence.endswith('.'):
+                    sentence += '.'
+                if sentence:
+                    formatted_points.append(f"• {sentence}")
+            return "\n".join(formatted_points)
+        
+        return text
     
     def export_excel(self) -> bytes:
         """Export current data to Excel format"""
