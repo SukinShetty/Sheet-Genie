@@ -14,6 +14,7 @@ import pandas as pd
 import io
 from backend.ai_service import AIService
 from backend.excel_helpers import create_sample_data
+from backend.google_sheets_service import GoogleSheetsService
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
