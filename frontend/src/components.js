@@ -306,12 +306,13 @@ export const WelcomeModal = ({ isOpen, onClose, onNext }) => {
 };
 
 // Chat Component
-export const Chat = ({ isOpen, onClose }) => {
+export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
   const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && !isLoading) {
       const userMessage = {
         id: messages.length + 1,
         text: newMessage,
@@ -321,17 +322,55 @@ export const Chat = ({ isOpen, onClose }) => {
       
       setMessages([...messages, userMessage]);
       setNewMessage('');
+      setIsLoading(true);
       
-      // Simulate AI response
-      setTimeout(() => {
+      try {
+        // Call the backend API
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: newMessage
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get AI response');
+        }
+        
+        const data = await response.json();
+        
+        // Add AI response
         const aiResponse = {
           id: messages.length + 2,
-          text: getAIResponse(newMessage),
+          text: data.response || 'I processed your request!',
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          functionResults: data.function_results,
+          updatedData: data.updated_data
+        };
+        
+        setMessages(prev => [...prev, aiResponse]);
+        
+        // Update spreadsheet data if available
+        if (data.updated_data && onDataUpdate) {
+          onDataUpdate(data.updated_data);
+        }
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        const errorMessage = {
+          id: messages.length + 2,
+          text: 'Sorry, I encountered an error processing your request. Please try again.',
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
