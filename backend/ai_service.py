@@ -392,11 +392,12 @@ class AIService:
                 return self.excel_helper.sum_range(function_args["range_spec"])
             elif function_name == "average_range":
                 return self.excel_helper.average_range(function_args["range_spec"])
-            elif function_name == "create_pivot":
-                return self.excel_helper.create_pivot(
-                    function_args["rows"],
-                    function_args["values"],
-                    function_args.get("aggfunc", "sum")
+            elif function_name == "query_data":
+                return self.excel_helper.query_data(
+                    function_args["question"],
+                    function_args.get("filter_column"),
+                    function_args.get("filter_value"),
+                    function_args.get("count_column")
                 )
             elif function_name == "generate_chart":
                 return self.excel_helper.generate_chart(
