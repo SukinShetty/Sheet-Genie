@@ -4,7 +4,7 @@ import logging
 from typing import Dict, List, Any, Optional
 import pandas as pd
 from openai import OpenAI
-from .excel_helpers import ExcelHelper, create_sample_data
+from backend.excel_helpers import ExcelHelper, create_sample_data
 
 logger = logging.getLogger(__name__)
 
