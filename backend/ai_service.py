@@ -19,8 +19,27 @@ class AIService:
     def set_spreadsheet_data(self, data: List[List[Any]]) -> None:
         """Set the current spreadsheet data"""
         try:
-            # Convert to DataFrame
-            self.current_data = pd.DataFrame(data[1:], columns=data[0])
+            # Convert to DataFrame, ensuring all data is properly formatted
+            if not data or len(data) < 2:
+                # Fallback to sample data
+                self.current_data = create_sample_data()
+                self.excel_helper = ExcelHelper(self.current_data)
+                return
+            
+            # Convert all data to strings first to handle mixed types
+            headers = [str(item) for item in data[0]]
+            rows = []
+            for row in data[1:]:
+                formatted_row = []
+                for item in row:
+                    if isinstance(item, (int, float)):
+                        formatted_row.append(item)
+                    else:
+                        formatted_row.append(str(item))
+                rows.append(formatted_row)
+            
+            # Create DataFrame
+            self.current_data = pd.DataFrame(rows, columns=headers)
             self.excel_helper = ExcelHelper(self.current_data)
             logger.info(f"Set spreadsheet data with {len(self.current_data)} rows")
         except Exception as e:
