@@ -45,6 +45,8 @@ class AIService:
             # Create DataFrame
             self.current_data = pd.DataFrame(rows, columns=headers)
             self.excel_helper = ExcelHelper(self.current_data)
+            self.analytics = AdvancedAnalytics(self.current_data)
+            self.chart_generator = ChartGenerator(self.current_data)
             logger.info(f"Set spreadsheet data with {len(self.current_data)} rows")
         except Exception as e:
             logger.error(f"Error setting spreadsheet data: {str(e)}")
