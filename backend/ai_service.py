@@ -408,6 +408,20 @@ class AIService:
                     function_args["format_type"],
                     function_args.get("format_value")
                 )
+            elif function_name == "generate_insights":
+                return self._generate_insights(function_args["analysis_type"])
+            elif function_name == "suggest_chart":
+                return self._suggest_chart(
+                    function_args["x_column"],
+                    function_args["y_column"]
+                )
+            elif function_name == "create_dashboard":
+                return self._create_dashboard(function_args["dashboard_type"])
+            elif function_name == "forecast_data":
+                return self._forecast_data(
+                    function_args["column"],
+                    function_args.get("periods", 3)
+                )
             else:
                 return {
                     "success": False,
