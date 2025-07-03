@@ -188,29 +188,29 @@ export const TestChat = ({ isOpen, onClose }) => {
           {/* Quick Action Buttons */}
           <div className="grid grid-cols-2 gap-2 mt-3">
             <button 
-              onClick={() => setNewMessage('Generate detailed insights')}
+              onClick={() => setNewMessage('analyze trends in this data')}
               className="text-xs bg-purple-100 text-purple-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
             >
-              <Eye className="w-3 h-3" />
-              <span>Insights</span>
+              <TrendingUp className="w-3 h-3" />
+              <span>Trends</span>
             </button>
             <button 
-              onClick={() => setNewMessage('Create dashboard')}
+              onClick={() => setNewMessage('create dashboard')}
               className="text-xs bg-blue-100 text-blue-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
             >
               <BarChart3 className="w-3 h-3" />
               <span>Dashboard</span>
             </button>
             <button 
-              onClick={() => setNewMessage('Forecast Q4 sales for 3 periods')}
-              className="text-xs bg-orange-100 text-orange-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
+              onClick={() => setNewMessage('generate detailed insights')}
+              className="text-xs bg-green-100 text-green-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
             >
-              <TrendingUp className="w-3 h-3" />
-              <span>Forecast</span>
+              <Eye className="w-3 h-3" />
+              <span>Insights</span>
             </button>
             <button 
-              onClick={() => setNewMessage('Suggest best chart for Product vs Total')}
-              className="text-xs bg-green-100 text-green-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
+              onClick={() => setNewMessage('suggest best chart for this data')}
+              className="text-xs bg-orange-100 text-orange-700 px-2 py-2 rounded flex items-center justify-center space-x-1"
             >
               <BarChart3 className="w-3 h-3" />
               <span>Chart</span>
