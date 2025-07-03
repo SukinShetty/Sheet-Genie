@@ -17,6 +17,8 @@ class AIService:
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         self.current_data = None
         self.excel_helper = None
+        self.analytics = None
+        self.chart_generator = None
     
     def set_spreadsheet_data(self, data: List[List[Any]]) -> None:
         """Set the current spreadsheet data"""
