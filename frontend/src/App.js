@@ -9,6 +9,7 @@ import {
   FileUpload, 
   StatusBar 
 } from './components';
+import { TestChat } from './TestChat';
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(false);
