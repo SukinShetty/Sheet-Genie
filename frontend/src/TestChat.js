@@ -111,20 +111,25 @@ export const TestChat = ({ isOpen, onClose }) => {
               <div className={`max-w-xs px-4 py-3 rounded-2xl ${
                 message.sender === 'user' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-800'
               }`}>
-                <p className="text-sm">{message.text}</p>
+                {/* Main message text with improved formatting */}
+                <div className="text-sm whitespace-pre-line">{message.text}</div>
                 
                 {/* Function Results */}
                 {message.functionResults && (
-                  <div className="mt-2 pt-2 border-t border-gray-300">
+                  <div className="mt-3 pt-3 border-t border-gray-300">
+                    <div className="text-xs font-semibold text-gray-600 mb-2">📊 Analysis Details:</div>
                     {message.functionResults.map((result, index) => (
-                      <div key={index} className="text-xs bg-white/20 rounded p-2 mb-1">
+                      <div key={index} className="text-xs bg-white/30 rounded p-2 mb-2">
                         {result.formula && (
-                          <div><strong>Formula:</strong> {result.formula}</div>
+                          <div className="mb-1"><strong>Formula:</strong> <code>{result.formula}</code></div>
                         )}
-                        {result.result && (
-                          <div><strong>Result:</strong> {result.result}</div>
+                        {result.result !== undefined && (
+                          <div className="mb-1"><strong>Result:</strong> {typeof result.result === 'number' ? result.result.toLocaleString() : result.result}</div>
                         )}
-                        {result.message && (
+                        {result.analysis_type && (
+                          <div className="mb-1"><strong>Analysis:</strong> {result.analysis_type}</div>
+                        )}
+                        {result.message && !result.formula && (
                           <div><strong>Action:</strong> {result.message}</div>
                         )}
                       </div>
