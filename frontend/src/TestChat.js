@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Send, X, Brain } from 'lucide-react';
+import { Send, X, Brain, BarChart3, TrendingUp, Eye } from 'lucide-react';
+import { ChartRenderer, DashboardGrid, ChartSuggestion } from './ChartComponents';
 
 export const TestChat = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
