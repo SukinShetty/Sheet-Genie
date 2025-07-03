@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { 
   Toolbar, 
@@ -14,6 +14,27 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
+  const [spreadsheetData, setSpreadsheetData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load sample data on component mount
+  useEffect(() => {
+    loadSampleData();
+  }, []);
+
+  const loadSampleData = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/sample-data`);
+      if (response.ok) {
+        const result = await response.json();
+        setSpreadsheetData(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading sample data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOpenFile = () => {
     document.getElementById('fileInput').click();
