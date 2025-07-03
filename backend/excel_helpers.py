@@ -310,18 +310,269 @@ class ExcelHelper:
             logger.error(f"Error getting updated data: {str(e)}")
             return []
     
-    def export_to_excel(self, filename: str = None) -> bytes:
-        """Export the dataframe to Excel format"""
-        if filename is None:
-            filename = "updated_spreadsheet.xlsx"
+    def query_data(self, question: str, filter_column: str = None, filter_value: str = None, count_column: str = None) -> Dict[str, Any]:
+        """
+        Query and analyze data to answer specific questions
         
-        # Create Excel file in memory
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            self.df.to_excel(writer, sheet_name='Sheet1', index=False)
+        Args:
+            question: The specific question being asked
+            filter_column: Column to filter by
+            filter_value: Value to filter for
+            count_column: Column to count or analyze
         
-        output.seek(0)
-        return output.getvalue()
+        Returns:
+            Dict with direct answer to the question
+        """
+        try:
+            question_lower = question.lower()
+            
+            # Determine what type of question this is
+            if any(word in question_lower for word in ['how many', 'count', 'number of']):
+                return self._handle_count_question(question, filter_column, filter_value, count_column)
+            elif any(word in question_lower for word in ['which', 'what', 'list', 'show']):
+                return self._handle_list_question(question, filter_column, filter_value, count_column)
+            elif any(word in question_lower for word in ['total', 'sum']):
+                return self._handle_sum_question(question, filter_column, filter_value, count_column)
+            elif any(word in question_lower for word in ['average', 'mean']):
+                return self._handle_average_question(question, filter_column, filter_value, count_column)
+            else:
+                return self._handle_general_question(question, filter_column, filter_value, count_column)
+                
+        except Exception as e:
+            logger.error(f"Error in query_data: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Could not answer the question: {question}"
+            }
+    
+    def _handle_count_question(self, question: str, filter_column: str, filter_value: str, count_column: str) -> Dict[str, Any]:
+        """Handle counting questions"""
+        try:
+            df_filtered = self.df.copy()
+            
+            # Auto-detect filter from question if not provided
+            if not filter_column or not filter_value:
+                filter_column, filter_value = self._extract_filter_from_question(question)
+            
+            # Apply filter if specified
+            if filter_column and filter_value and filter_column in self.df.columns:
+                # Case-insensitive filtering
+                df_filtered = df_filtered[df_filtered[filter_column].astype(str).str.contains(filter_value, case=False, na=False)]
+            
+            # Count the results
+            count = len(df_filtered)
+            
+            # Create a descriptive message
+            if filter_column and filter_value:
+                message = f"Found {count} items where {filter_column} contains '{filter_value}'"
+            else:
+                message = f"Total count: {count} items"
+            
+            return {
+                "success": True,
+                "result": count,
+                "question": question,
+                "filter_applied": f"{filter_column} = {filter_value}" if filter_column and filter_value else "None",
+                "message": message,
+                "data_sample": df_filtered.head(5).to_dict('records') if len(df_filtered) > 0 else []
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in count question: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _handle_list_question(self, question: str, filter_column: str, filter_value: str, count_column: str) -> Dict[str, Any]:
+        """Handle listing/showing questions"""
+        try:
+            df_filtered = self.df.copy()
+            
+            # Auto-detect filter from question if not provided
+            if not filter_column or not filter_value:
+                filter_column, filter_value = self._extract_filter_from_question(question)
+            
+            # Apply filter if specified
+            if filter_column and filter_value and filter_column in self.df.columns:
+                df_filtered = df_filtered[df_filtered[filter_column].astype(str).str.contains(filter_value, case=False, na=False)]
+            
+            # Limit results to prevent overwhelming response
+            results = df_filtered.head(10).to_dict('records')
+            total_count = len(df_filtered)
+            
+            message = f"Found {total_count} matching items"
+            if total_count > 10:
+                message += " (showing first 10)"
+            
+            return {
+                "success": True,
+                "result": results,
+                "total_count": total_count,
+                "question": question,
+                "message": message
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in list question: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _handle_sum_question(self, question: str, filter_column: str, filter_value: str, count_column: str) -> Dict[str, Any]:
+        """Handle sum/total questions"""
+        try:
+            df_filtered = self.df.copy()
+            
+            # Auto-detect filter and numeric column
+            if not filter_column or not filter_value:
+                filter_column, filter_value = self._extract_filter_from_question(question)
+            
+            if not count_column:
+                count_column = self._detect_numeric_column_from_question(question)
+            
+            # Apply filter if specified
+            if filter_column and filter_value and filter_column in self.df.columns:
+                df_filtered = df_filtered[df_filtered[filter_column].astype(str).str.contains(filter_value, case=False, na=False)]
+            
+            # Calculate sum
+            if count_column and count_column in df_filtered.columns:
+                total = pd.to_numeric(df_filtered[count_column], errors='coerce').sum()
+                message = f"Total {count_column}: {total}"
+            else:
+                total = len(df_filtered)
+                message = f"Total count: {total}"
+            
+            return {
+                "success": True,
+                "result": float(total),
+                "question": question,
+                "column_summed": count_column,
+                "message": message
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in sum question: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _handle_average_question(self, question: str, filter_column: str, filter_value: str, count_column: str) -> Dict[str, Any]:
+        """Handle average questions"""
+        try:
+            df_filtered = self.df.copy()
+            
+            # Auto-detect filter and numeric column
+            if not filter_column or not filter_value:
+                filter_column, filter_value = self._extract_filter_from_question(question)
+            
+            if not count_column:
+                count_column = self._detect_numeric_column_from_question(question)
+            
+            # Apply filter if specified
+            if filter_column and filter_value and filter_column in self.df.columns:
+                df_filtered = df_filtered[df_filtered[filter_column].astype(str).str.contains(filter_value, case=False, na=False)]
+            
+            # Calculate average
+            if count_column and count_column in df_filtered.columns:
+                avg = pd.to_numeric(df_filtered[count_column], errors='coerce').mean()
+                message = f"Average {count_column}: {avg:.2f}"
+            else:
+                avg = len(df_filtered)
+                message = f"Count: {avg}"
+            
+            return {
+                "success": True,
+                "result": float(avg),
+                "question": question,
+                "column_averaged": count_column,
+                "message": message
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in average question: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _handle_general_question(self, question: str, filter_column: str, filter_value: str, count_column: str) -> Dict[str, Any]:
+        """Handle general questions about the data"""
+        try:
+            # Provide data overview
+            total_rows = len(self.df)
+            columns = list(self.df.columns)
+            
+            # Try to find relevant information based on question keywords
+            question_lower = question.lower()
+            relevant_info = []
+            
+            for col in columns:
+                if any(word in col.lower() for word in question_lower.split()):
+                    unique_values = self.df[col].value_counts().head(5)
+                    relevant_info.append(f"{col}: {dict(unique_values)}")
+            
+            message = f"Data overview: {total_rows} rows, {len(columns)} columns"
+            if relevant_info:
+                message += f"\nRelevant data: {'; '.join(relevant_info)}"
+            
+            return {
+                "success": True,
+                "result": {
+                    "total_rows": total_rows,
+                    "columns": columns,
+                    "relevant_info": relevant_info
+                },
+                "question": question,
+                "message": message
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in general question: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _extract_filter_from_question(self, question: str) -> tuple:
+        """Extract filter column and value from natural language question"""
+        question_lower = question.lower()
+        
+        # Look for patterns like "sukin has finished", "products are pending", etc.
+        for col in self.df.columns:
+            col_lower = col.lower()
+            if col_lower in question_lower:
+                # Found a column name in the question
+                # Now look for values in that column that appear in the question
+                unique_values = self.df[col].astype(str).str.lower().unique()
+                for value in unique_values:
+                    if value in question_lower and len(value) > 2:  # Avoid short meaningless matches
+                        return col, value
+        
+        # Try to find common patterns
+        if 'sukin' in question_lower:
+            # Look for columns that might contain 'sukin'
+            for col in self.df.columns:
+                if self.df[col].astype(str).str.contains('sukin', case=False).any():
+                    return col, 'sukin'
+        
+        if 'pending' in question_lower:
+            for col in self.df.columns:
+                if self.df[col].astype(str).str.contains('pending', case=False).any():
+                    return col, 'pending'
+        
+        if 'finished' in question_lower or 'complete' in question_lower:
+            for col in self.df.columns:
+                if any(self.df[col].astype(str).str.contains(word, case=False).any() for word in ['finished', 'complete', 'done']):
+                    return col, 'finished'
+        
+        return None, None
+    
+    def _detect_numeric_column_from_question(self, question: str) -> str:
+        """Detect which numeric column the question is asking about"""
+        question_lower = question.lower()
+        
+        # Check if question mentions specific column names
+        for col in self.df.columns:
+            if col.lower() in question_lower:
+                # Check if it's numeric
+                if pd.api.types.is_numeric_dtype(self.df[col]):
+                    return col
+        
+        # Default to first numeric column
+        for col in self.df.columns:
+            if pd.api.types.is_numeric_dtype(self.df[col]):
+                return col
+        
+        return None
 
 
 def create_sample_data() -> pd.DataFrame:
