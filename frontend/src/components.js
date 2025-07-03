@@ -363,7 +363,7 @@ export const WelcomeModal = ({ isOpen, onClose, onNext }) => {
   );
 };
 
-// Chart Display Component
+// Chart Display Component (Simplified)
 export const ChartDisplay = ({ chartData, onClose }) => {
   if (!chartData) return null;
 
@@ -382,22 +382,12 @@ export const ChartDisplay = ({ chartData, onClose }) => {
           <X className="w-5 h-5" />
         </button>
       </div>
-      <div className="w-full h-64">
-        <Plot
-          data={chartData.data}
-          layout={{
-            ...chartData.layout,
-            autosize: true,
-            margin: { t: 40, r: 40, b: 40, l: 40 }
-          }}
-          config={{
-            displayModeBar: true,
-            displaylogo: false,
-            modeBarButtonsToRemove: ['pan2d', 'lasso2d']
-          }}
-          style={{ width: '100%', height: '100%' }}
-          useResizeHandler={true}
-        />
+      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="text-center">
+          <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+          <p className="text-gray-600">Chart: {chartData.chart_type || 'Bar Chart'}</p>
+          <p className="text-sm text-gray-500">Interactive charts coming soon!</p>
+        </div>
       </div>
     </motion.div>
   );
