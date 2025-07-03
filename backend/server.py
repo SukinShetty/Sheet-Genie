@@ -59,6 +59,10 @@ class SpreadsheetData(BaseModel):
     data: List[List[Any]]
     session_id: Optional[str] = None
 
+class GoogleSheetRequest(BaseModel):
+    url: str
+    session_id: Optional[str] = None
+
 # Routes
 @api_router.get("/")
 async def root():
