@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@handsontable/react": "^15.3.0",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "axios": "^1.8.4",
     "cra-template": "1.2.0",
     "framer-motion": "^12.23.0",
@@ -11,11 +12,17 @@
     "lucide-react": "^0.525.0",
     "plotly.js": "^3.0.1",
     "react": "^19.0.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^19.0.0",
+    "react-grid-layout": "^1.5.2",
     "react-plotly.js": "^2.6.0",
+    "react-resizable": "^3.0.5",
     "react-router-dom": "^7.5.1",
     "react-scripts": "5.0.1",
-    "recharts": "^3.0.2"
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
+    "recharts": "^3.0.2",
+    "victory": "^37.3.6"
   },
   "scripts": {
     "start": "craco start",
