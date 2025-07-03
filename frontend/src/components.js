@@ -191,6 +191,10 @@ export const WelcomeModal = ({ isOpen, onClose, onNext }) => {
     }
   };
 
+  const handleClose = () => {
+    onClose();
+  };
+
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
