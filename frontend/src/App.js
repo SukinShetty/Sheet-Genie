@@ -249,10 +249,9 @@ function App() {
         </div>
 
         {/* Chat Panel */}
-        <Chat 
+        <TestChat 
           isOpen={showChat} 
           onClose={() => setShowChat(false)}
-          onDataUpdate={handleDataUpdate}
         />
       </div>
 
