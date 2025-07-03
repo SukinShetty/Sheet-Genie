@@ -109,7 +109,7 @@ export const Toolbar = ({ onOpenFile, onNewFile, onSaveFile, onSettings, onSecur
 };
 
 // Spreadsheet Toolbar Component
-export const SpreadsheetToolbar = () => {
+export const SpreadsheetToolbar = ({ onNewChat }) => {
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-2">
       <div className="flex items-center justify-between">
@@ -124,7 +124,10 @@ export const SpreadsheetToolbar = () => {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <button className="flex items-center space-x-1 px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+          <button 
+            onClick={onNewChat}
+            className="flex items-center space-x-1 px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+          >
             <Plus className="w-4 h-4" />
             <span>New Chat</span>
           </button>
