@@ -247,7 +247,11 @@ function App() {
         </div>
 
         {/* Chat Panel */}
-        <Chat isOpen={showChat} onClose={() => setShowChat(false)} />
+        <Chat 
+          isOpen={showChat} 
+          onClose={() => setShowChat(false)}
+          onDataUpdate={handleDataUpdate}
+        />
       </div>
 
       {/* Bottom Status Bar */}
