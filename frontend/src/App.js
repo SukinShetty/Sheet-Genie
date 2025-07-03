@@ -103,6 +103,7 @@ function App() {
   };
 
   const handleNewChat = () => {
+    console.log('Opening chat panel...');
     setShowChat(true);
   };
 
