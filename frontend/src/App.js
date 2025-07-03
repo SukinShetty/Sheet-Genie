@@ -67,14 +67,31 @@ function App() {
     }
   };
 
-  const handleNewFile = () => {
+  const handleNewFile = async () => {
     setCurrentFile(null);
+    setIsLoading(true);
+    await loadSampleData();
     console.log('New file created');
   };
 
-  const handleSaveFile = () => {
-    console.log('File saved');
-    // Here you would typically save the current spreadsheet data
+  const handleSaveFile = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/export-excel`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'sheetgenie_export.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        console.log('File saved successfully');
+      }
+    } catch (error) {
+      console.error('Error saving file:', error);
+    }
   };
 
   const handleSettings = () => {
