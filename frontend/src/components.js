@@ -711,8 +711,13 @@ export const Spreadsheet = ({ data, onDataChange }) => {
   );
 };
 
-// File Upload Component
-export const FileUpload = ({ onFileUpload }) => {
+// Enhanced File Upload Component with Google Sheets support
+export const FileUpload = ({ onFileUpload, onGoogleSheetLoad }) => {
+  const [activeTab, setActiveTab] = useState('excel');
+  const [googleSheetUrl, setGoogleSheetUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -720,24 +725,166 @@ export const FileUpload = ({ onFileUpload }) => {
     }
   };
 
+  const handleGoogleSheetLoad = async () => {
+    if (!googleSheetUrl.trim()) {
+      setUrlError('Please enter a Google Sheets URL');
+      return;
+    }
+
+    setIsLoading(true);
+    setUrlError('');
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/load-google-sheet`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: googleSheetUrl
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to load Google Sheet');
+      }
+
+      const result = await response.json();
+      onGoogleSheetLoad(result);
+      setGoogleSheetUrl('');
+      
+    } catch (error) {
+      console.error('Error loading Google Sheet:', error);
+      setUrlError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sampleUrls = [
+    {
+      name: "Sample Sales Data",
+      url: "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit",
+    }
+  ];
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300 rounded-xl hover:border-blue-400 transition-colors"
+      className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
     >
-      <div className="text-center">
-        <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <div>
-          <p className="text-lg font-semibold text-blue-900 mb-2">Upload Excel File</p>
-          <p className="text-sm text-blue-700 mb-4">Drop your .xlsx file here or click to browse</p>
-        </div>
-        <input
-          type="file"
-          accept=".xlsx,.xls"
-          onChange={handleFileChange}
-          className="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:transition-colors file:cursor-pointer cursor-pointer"
-        />
+      {/* Tab Navigation */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('excel')}
+          className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+            activeTab === 'excel'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          📄 Upload Excel File
+        </button>
+        <button
+          onClick={() => setActiveTab('google')}
+          className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+            activeTab === 'google'
+              ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          🔗 Google Sheets Link
+        </button>
+      </div>
+
+      <div className="p-6">
+        {activeTab === 'excel' ? (
+          <div className="text-center">
+            <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <div>
+              <p className="text-lg font-semibold text-blue-900 mb-2">Upload Excel File</p>
+              <p className="text-sm text-blue-700 mb-4">Drop your .xlsx file here or click to browse</p>
+            </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleFileChange}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:transition-colors file:cursor-pointer cursor-pointer"
+            />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🔗</span>
+              </div>
+              <p className="text-lg font-semibold text-green-900 mb-2">Connect Google Sheets</p>
+              <p className="text-sm text-green-700 mb-4">Paste your Google Sheets link below</p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="url"
+                  value={googleSheetUrl}
+                  onChange={(e) => {
+                    setGoogleSheetUrl(e.target.value);
+                    setUrlError('');
+                  }}
+                  placeholder="https://docs.google.com/spreadsheets/d/..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+                {urlError && (
+                  <p className="text-sm text-red-600 mt-1">{urlError}</p>
+                )}
+              </div>
+
+              <button
+                onClick={handleGoogleSheetLoad}
+                disabled={isLoading}
+                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Loading Sheet...</span>
+                  </div>
+                ) : (
+                  'Load Google Sheet'
+                )}
+              </button>
+            </div>
+
+            {/* Sample URLs */}
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-xs font-medium text-gray-700 mb-2">Try a sample:</p>
+              <div className="space-y-1">
+                {sampleUrls.map((sample, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setGoogleSheetUrl(sample.url)}
+                    className="block w-full text-left text-xs text-green-600 hover:text-green-800 hover:bg-green-50 px-2 py-1 rounded transition-colors"
+                  >
+                    📊 {sample.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600">
+              <p className="font-medium mb-2">📝 How to share your Google Sheet:</p>
+              <ol className="space-y-1 list-decimal list-inside">
+                <li>Open your Google Sheet</li>
+                <li>Click "Share" → "Change to anyone with the link"</li>
+                <li>Set permission to "Viewer"</li>
+                <li>Copy and paste the link here</li>
+              </ol>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
