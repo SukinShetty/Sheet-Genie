@@ -301,7 +301,14 @@ class ExcelHelper:
     
     def get_updated_data(self) -> List[List[Any]]:
         """Get the updated dataframe as a list of lists for the frontend"""
-        return self.df.values.tolist()
+        try:
+            # Include headers as first row
+            headers = self.df.columns.tolist()
+            data_rows = self.df.values.tolist()
+            return [headers] + data_rows
+        except Exception as e:
+            logger.error(f"Error getting updated data: {str(e)}")
+            return []
     
     def export_to_excel(self, filename: str = None) -> bytes:
         """Export the dataframe to Excel format"""
