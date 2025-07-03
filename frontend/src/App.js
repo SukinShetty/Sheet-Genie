@@ -40,10 +40,31 @@ function App() {
     document.getElementById('fileInput').click();
   };
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = async (file) => {
     setCurrentFile(file);
-    console.log('File uploaded:', file.name);
-    // Here you would typically process the Excel file
+    setIsLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/upload-excel`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setSpreadsheetData(result.data);
+        console.log('File uploaded successfully:', result);
+      } else {
+        console.error('Failed to upload file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNewFile = () => {
