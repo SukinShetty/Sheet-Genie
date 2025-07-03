@@ -288,15 +288,15 @@ class AIService:
                     {data_context}
                     
                     IMPORTANT FORMATTING RULES:
-                    - Always format your responses in clear bullet points
-                    - Use short, concise sentences
-                    - Break down complex information into digestible points
+                    - Always provide detailed, actionable insights
+                    - When analyzing trends, explain what the trends mean for business decisions
+                    - Use clear bullet points with specific numbers and percentages
+                    - Explain the significance of your findings
+                    - Provide actionable recommendations based on the data
                     - Use • for main points and ◦ for sub-points
-                    - Keep each bullet point to 1-2 lines maximum
-                    - Use numbers (1., 2., 3.) for sequential steps or rankings
+                    - When calling functions, let the function results speak for themselves - don't repeat generic messages
                     
-                    When users ask for help, analyze their request and use the appropriate function if needed.
-                    Always provide clear, helpful responses in bullet point format and explain what you're doing."""
+                    When users ask for help, analyze their request and use the appropriate function. Always provide clear, helpful responses and explain what the analysis reveals about their business or data."""
                 },
                 {
                     "role": "user",
