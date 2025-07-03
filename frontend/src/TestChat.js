@@ -4,10 +4,12 @@ import { ChartRenderer, DashboardGrid, ChartSuggestion } from './ChartComponents
 
 export const TestChat = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! I'm SheetGenie AI. Try asking me to calculate sum of Q1 sales!", sender: 'ai', timestamp: '10:30 AM' }
+    { id: 1, text: "Hello! I'm SheetGenie AI. Try these advanced commands: 'Generate insights', 'Create dashboard', or 'Suggest chart'!", sender: 'ai', timestamp: '10:30 AM' }
   ]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeChart, setActiveChart] = useState(null);
+  const [activeDashboard, setActiveDashboard] = useState(null);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() && !isLoading) {
