@@ -1,52 +1,177 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+import React, { useState } from 'react';
+import './App.css';
+import { 
+  Toolbar, 
+  SpreadsheetToolbar, 
+  WelcomeModal, 
+  Chat, 
+  Spreadsheet, 
+  FileUpload, 
+  StatusBar 
+} from './components';
 
 function App() {
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [showChat, setShowChat] = useState(false);
+  const [currentFile, setCurrentFile] = useState(null);
+
+  const handleOpenFile = () => {
+    document.getElementById('fileInput').click();
+  };
+
+  const handleFileUpload = (file) => {
+    setCurrentFile(file);
+    console.log('File uploaded:', file.name);
+    // Here you would typically process the Excel file
+  };
+
+  const handleNewFile = () => {
+    setCurrentFile(null);
+    console.log('New file created');
+  };
+
+  const handleSaveFile = () => {
+    console.log('File saved');
+    // Here you would typically save the current spreadsheet data
+  };
+
+  const handleSettings = () => {
+    console.log('Settings opened');
+  };
+
+  const handleSecurity = () => {
+    console.log('Security settings opened');
+  };
+
+  const handleNewChat = () => {
+    setShowChat(true);
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="App h-screen flex flex-col bg-gray-100">
+      {/* Hidden file input */}
+      <input
+        id="fileInput"
+        type="file"
+        accept=".xlsx,.xls"
+        onChange={(e) => handleFileUpload(e.target.files[0])}
+        className="hidden"
+      />
+
+      {/* Top Toolbar */}
+      <Toolbar
+        onOpenFile={handleOpenFile}
+        onNewFile={handleNewFile}
+        onSaveFile={handleSaveFile}
+        onSettings={handleSettings}
+        onSecurity={handleSecurity}
+      />
+
+      {/* Spreadsheet Toolbar */}
+      <SpreadsheetToolbar onNewChat={handleNewChat} />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex">
+        {/* Left Content Area */}
+        <div className="flex-1 flex flex-col">
+          {/* File Upload Section */}
+          {!currentFile && (
+            <div className="p-4">
+              <FileUpload onFileUpload={handleFileUpload} />
+            </div>
+          )}
+
+          {/* Hero Section with Background */}
+          <div className="relative p-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div 
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: 'url(https://images.unsplash.com/photo-1581094289810-adf5d25690e3)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            />
+            <div className="relative z-10 max-w-2xl">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                Welcome to SheetGenie
+              </h1>
+              <p className="text-lg text-gray-600 mb-6">
+                Your AI-powered Excel assistant that automates spreadsheet tasks, creates formulas, 
+                generates charts, and provides data insights through natural language conversations.
+              </p>
+              <div className="flex space-x-4">
+                <button 
+                  onClick={() => setShowWelcome(true)}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Get Started
+                </button>
+                <button 
+                  onClick={() => setShowChat(true)}
+                  className="px-6 py-3 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
+                >
+                  Try Chat Assistant
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Features Section */}
+          <div className="p-8 bg-white">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-4">
+                <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                  <img 
+                    src="https://images.pexels.com/photos/8532850/pexels-photo-8532850.jpeg" 
+                    alt="AI Assistant" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Assistant</h3>
+                <p className="text-gray-600">Chat with our AI to get formulas, analysis, and insights</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                  <img 
+                    src="https://images.pexels.com/photos/16053029/pexels-photo-16053029.jpeg" 
+                    alt="Smart Automation" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Smart Automation</h3>
+                <p className="text-gray-600">Automate repetitive tasks with intelligent suggestions</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <img 
+                    src="https://images.unsplash.com/photo-1545063328-c8e3faffa16f" 
+                    alt="Data Visualization" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Data Visualization</h3>
+                <p className="text-gray-600">Create beautiful charts and dashboards instantly</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Spreadsheet Component */}
+          <Spreadsheet />
+        </div>
+
+        {/* Chat Panel */}
+        <Chat isOpen={showChat} onClose={() => setShowChat(false)} />
+      </div>
+
+      {/* Bottom Status Bar */}
+      <StatusBar />
+
+      {/* Welcome Modal */}
+      <WelcomeModal
+        isOpen={showWelcome}
+        onClose={() => setShowWelcome(false)}
+      />
     </div>
   );
 }
