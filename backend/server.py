@@ -127,19 +127,65 @@ async def upload_excel(file: UploadFile = File(...)):
         logging.error(f"Error uploading Excel file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post("/set-spreadsheet-data")
-async def set_spreadsheet_data(data: SpreadsheetData):
-    """Set spreadsheet data for processing"""
+@api_router.post("/load-google-sheet")
+async def load_google_sheet(request: GoogleSheetRequest):
+    """Load data from Google Sheets URL"""
     try:
-        ai_service.set_spreadsheet_data(data.data)
+        # Validate URL first
+        validation = google_sheets_service.validate_sheet_url(request.url)
+        if not validation["valid"]:
+            raise HTTPException(status_code=400, detail=validation["error"])
+        
+        # Fetch data from Google Sheets
+        result = google_sheets_service.fetch_sheet_data(request.url)
+        
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result["error"])
+        
+        # Set the data in AI service
+        ai_service.set_spreadsheet_data(result["data"])
+        
         return {
             "success": True,
-            "message": "Spreadsheet data set successfully",
-            "rows": len(data.data) - 1,  # Subtract header row
-            "columns": len(data.data[0]) if data.data else 0
+            "data": result["data"],
+            "sheet_id": result.get("sheet_id"),
+            "method": result.get("method"),
+            "rows": result.get("rows", 0),
+            "columns": result.get("columns", 0),
+            "message": result["message"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error loading Google Sheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/validate-google-sheet")
+async def validate_google_sheet_url(request: GoogleSheetRequest):
+    """Validate Google Sheets URL"""
+    try:
+        validation = google_sheets_service.validate_sheet_url(request.url)
+        return validation
+    except Exception as e:
+        logging.error(f"Error validating Google Sheet URL: {str(e)}")
+        return {"valid": False, "error": str(e)}
+
+@api_router.get("/google-sheets-help")
+async def get_google_sheets_help():
+    """Get help and instructions for Google Sheets integration"""
+    try:
+        instructions = google_sheets_service.create_sharing_instructions()
+        sample_urls = google_sheets_service.get_sample_urls()
+        
+        return {
+            "success": True,
+            "instructions": instructions,
+            "sample_urls": sample_urls,
+            "message": "Google Sheets integration help"
         }
     except Exception as e:
-        logging.error(f"Error setting spreadsheet data: {str(e)}")
+        logging.error(f"Error getting Google Sheets help: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/chat", response_model=ChatResponse)
