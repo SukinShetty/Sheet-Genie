@@ -11,7 +11,7 @@ import {
 } from './components';
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
 
