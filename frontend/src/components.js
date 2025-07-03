@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
-import Plot from 'react-plotly.js';
 import { 
   Upload, 
   Download, 
