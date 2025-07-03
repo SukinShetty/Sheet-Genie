@@ -478,6 +478,102 @@ class AIService:
         
         return text
     
+    def _generate_insights(self, analysis_type: str) -> Dict[str, Any]:
+        """Generate advanced analytics insights"""
+        try:
+            if analysis_type == "summary":
+                report = self.analytics.create_summary_report()
+                return {
+                    "success": True,
+                    "analysis_type": analysis_type,
+                    "report": report,
+                    "message": "Generated comprehensive data summary"
+                }
+            elif analysis_type == "detailed":
+                insights = self.analytics.generate_insights()
+                return {
+                    "success": True,
+                    "analysis_type": analysis_type,
+                    "insights": insights,
+                    "message": "Generated detailed analytics insights"
+                }
+            elif analysis_type == "trends":
+                trends = self.analytics._get_trend_analysis()
+                return {
+                    "success": True,
+                    "analysis_type": analysis_type,
+                    "trends": trends,
+                    "message": "Analyzed data trends and patterns"
+                }
+            elif analysis_type == "correlations":
+                correlations = self.analytics._get_correlation_analysis()
+                return {
+                    "success": True,
+                    "analysis_type": analysis_type,
+                    "correlations": correlations,
+                    "message": "Analyzed correlations between variables"
+                }
+            else:
+                return {"success": False, "error": "Invalid analysis type"}
+        except Exception as e:
+            logger.error(f"Error generating insights: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _suggest_chart(self, x_column: str, y_column: str) -> Dict[str, Any]:
+        """Suggest best chart type for given columns"""
+        try:
+            suggestions = self.chart_generator.suggest_best_chart_type(x_column, y_column)
+            best_chart = suggestions["recommended_charts"][0] if suggestions["recommended_charts"] else None
+            
+            if best_chart:
+                chart_config = self.chart_generator.generate_chart_config(
+                    best_chart["chart_type"], x_column, y_column
+                )
+                return {
+                    "success": True,
+                    "suggestions": suggestions,
+                    "recommended_chart": best_chart,
+                    "chart_config": chart_config,
+                    "message": f"Recommended {best_chart['chart_type']} chart for {x_column} vs {y_column}"
+                }
+            else:
+                return {"success": False, "error": "No suitable chart type found"}
+        except Exception as e:
+            logger.error(f"Error suggesting chart: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _create_dashboard(self, dashboard_type: str) -> Dict[str, Any]:
+        """Create an automatic dashboard"""
+        try:
+            dashboard_config = self.chart_generator.create_dashboard_config()
+            return {
+                "success": True,
+                "dashboard_type": dashboard_type,
+                "dashboard_config": dashboard_config,
+                "message": f"Created {dashboard_type} dashboard with {len(dashboard_config['charts'])} charts"
+            }
+        except Exception as e:
+            logger.error(f"Error creating dashboard: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _forecast_data(self, column: str, periods: int) -> Dict[str, Any]:
+        """Generate data forecasts"""
+        try:
+            forecast = self.analytics.forecast_next_period(column, periods)
+            if "error" in forecast:
+                return {"success": False, "error": forecast["error"]}
+            
+            return {
+                "success": True,
+                "column": column,
+                "periods": periods,
+                "forecast": forecast,
+                "message": f"Generated {periods}-period forecast for {column}"
+            }
+        except Exception as e:
+            logger.error(f"Error forecasting data: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
     def export_excel(self) -> bytes:
         """Export current data to Excel format"""
         if self.excel_helper:
