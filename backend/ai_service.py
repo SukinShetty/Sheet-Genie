@@ -70,6 +70,8 @@ class AIService:
             if self.current_data is None:
                 self.current_data = create_sample_data()
                 self.excel_helper = ExcelHelper(self.current_data)
+                self.analytics = AdvancedAnalytics(self.current_data)
+                self.chart_generator = ChartGenerator(self.current_data)
             
             # Define available functions
             functions = [
