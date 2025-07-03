@@ -400,7 +400,11 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [charts, setCharts] = useState([]);
 
+  console.log('Chat component rendered, isOpen:', isOpen);
+
   const handleSendMessage = async () => {
+    console.log('handleSendMessage called with:', newMessage);
+    
     if (newMessage.trim() && !isLoading) {
       const userMessage = {
         id: messages.length + 1,
@@ -414,6 +418,7 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
       setIsLoading(true);
       
       try {
+        console.log('Sending request to backend...');
         // Call the backend API
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
           method: 'POST',
@@ -425,11 +430,14 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
           })
         });
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (!data.success) {
           throw new Error(data.error || 'AI request failed');
@@ -480,6 +488,7 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
   };
 
   const handleSuggestionClick = (suggestion) => {
+    console.log('Suggestion clicked:', suggestion);
     setNewMessage(suggestion);
   };
 
@@ -487,146 +496,147 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
     setCharts(prev => prev.filter(chart => chart.id !== chartId));
   };
 
+  if (!isOpen) {
+    console.log('Chat is not open, returning null');
+    return null;
+  }
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ x: '100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '100%' }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl border-l border-gray-200 flex flex-col z-40"
+    <motion.div
+      initial={{ x: '100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '100%' }}
+      transition={{ type: "spring", damping: 25, stiffness: 200 }}
+      className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl border-l border-gray-200 flex flex-col z-40"
+    >
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Brain className="w-5 h-5" />
+          <span className="font-semibold">SheetGenie AI</span>
+          <span className="bg-white/20 px-2 py-1 rounded-full text-xs">Pro</span>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-white hover:text-gray-200 transition-colors"
         >
-          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Brain className="w-5 h-5" />
-              <span className="font-semibold">SheetGenie AI</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full text-xs">Pro</span>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 transition-colors"
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message) => (
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-xs px-4 py-3 rounded-2xl ${
+                message.sender === 'user'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-800'
+              }`}
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs px-4 py-3 rounded-2xl ${
-                    message.sender === 'user'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{message.text}</p>
-                  {message.functionResults && (
-                    <div className="mt-2 pt-2 border-t border-gray-200">
-                      {message.functionResults.map((result, index) => (
-                        <div key={index} className="text-xs bg-white/10 rounded p-2 mb-1">
-                          <span className="font-semibold">Formula:</span> {result.formula}
-                          <br />
-                          <span className="font-semibold">Result:</span> {result.result}
-                        </div>
-                      ))}
+              <p className="text-sm leading-relaxed">{message.text}</p>
+              {message.functionResults && (
+                <div className="mt-2 pt-2 border-t border-gray-200">
+                  {message.functionResults.map((result, index) => (
+                    <div key={index} className="text-xs bg-white/10 rounded p-2 mb-1">
+                      <span className="font-semibold">Formula:</span> {result.formula}
+                      <br />
+                      <span className="font-semibold">Result:</span> {result.result}
                     </div>
-                  )}
-                  <p className="text-xs opacity-75 mt-2">{message.timestamp}</p>
-                  
-                  {message.suggestions && (
-                    <div className="mt-3 space-y-1">
-                      <p className="text-xs font-semibold">Try these:</p>
-                      {message.suggestions.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          className="block w-full text-left text-xs bg-white/10 hover:bg-white/20 rounded p-2 transition-colors"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              </motion.div>
-            ))}
-            
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-start"
-              >
-                <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
+              )}
+              <p className="text-xs opacity-75 mt-2">{message.timestamp}</p>
+              
+              {message.suggestions && (
+                <div className="mt-3 space-y-1">
+                  <p className="text-xs font-semibold">Try these:</p>
+                  {message.suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="block w-full text-left text-xs bg-white/10 hover:bg-white/20 rounded p-2 transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
                 </div>
-              </motion.div>
+              )}
+            </div>
+          </motion.div>
+        ))}
+        
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-start"
+          >
+            <div className="bg-gray-100 rounded-2xl px-4 py-3">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+      
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+            placeholder="Ask SheetGenie anything..."
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 transition-all"
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={isLoading}
+            className="p-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          >
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <Send className="w-4 h-4" />
             )}
-          </div>
-          
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-                placeholder="Ask SheetGenie anything..."
-                disabled={isLoading}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 transition-all"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={isLoading}
-                className="p-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-              >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-            
-            {/* Quick Action Buttons */}
-            <div className="flex space-x-2 mt-3">
-              <button 
-                onClick={() => handleSuggestionClick('Sum all sales')}
-                className="flex-1 text-xs bg-green-100 text-green-700 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors"
-              >
-                <Calculator className="w-3 h-3 inline mr-1" />
-                Sum
-              </button>
-              <button 
-                onClick={() => handleSuggestionClick('Create chart')}
-                className="flex-1 text-xs bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 transition-colors"
-              >
-                <BarChart3 className="w-3 h-3 inline mr-1" />
-                Chart
-              </button>
-              <button 
-                onClick={() => handleSuggestionClick('Analyze trends')}
-                className="flex-1 text-xs bg-purple-100 text-purple-700 px-3 py-2 rounded-lg hover:bg-purple-200 transition-colors"
-              >
-                <TrendingUp className="w-3 h-3 inline mr-1" />
-                Analyze
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </button>
+        </div>
+        
+        {/* Quick Action Buttons */}
+        <div className="flex space-x-2 mt-3">
+          <button 
+            onClick={() => handleSuggestionClick('Sum all sales')}
+            className="flex-1 text-xs bg-green-100 text-green-700 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors"
+          >
+            <Calculator className="w-3 h-3 inline mr-1" />
+            Sum
+          </button>
+          <button 
+            onClick={() => handleSuggestionClick('Create chart')}
+            className="flex-1 text-xs bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 transition-colors"
+          >
+            <BarChart3 className="w-3 h-3 inline mr-1" />
+            Chart
+          </button>
+          <button 
+            onClick={() => handleSuggestionClick('Analyze trends')}
+            className="flex-1 text-xs bg-purple-100 text-purple-700 px-3 py-2 rounded-lg hover:bg-purple-200 transition-colors"
+          >
+            <TrendingUp className="w-3 h-3 inline mr-1" />
+            Analyze
+          </button>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
