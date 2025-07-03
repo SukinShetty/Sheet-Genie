@@ -12,8 +12,8 @@ import uuid
 from datetime import datetime
 import pandas as pd
 import io
-from .ai_service import AIService
-from .excel_helpers import create_sample_data
+from backend.ai_service import AIService
+from backend.excel_helpers import create_sample_data
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
