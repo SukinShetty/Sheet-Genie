@@ -5,6 +5,8 @@ from typing import Dict, List, Any, Optional
 import pandas as pd
 from openai import OpenAI
 from backend.excel_helpers import ExcelHelper, create_sample_data
+from backend.advanced_analytics import AdvancedAnalytics
+from backend.chart_generator import ChartGenerator
 
 logger = logging.getLogger(__name__)
 
