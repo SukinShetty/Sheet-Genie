@@ -426,10 +426,14 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
         });
         
         if (!response.ok) {
-          throw new Error('Failed to get AI response');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.error || 'AI request failed');
+        }
         
         // Add AI response
         const aiResponse = {
@@ -464,7 +468,7 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
         console.error('Error sending message:', error);
         const errorMessage = {
           id: messages.length + 2,
-          text: 'Sorry, I encountered an error processing your request. Please try again.',
+          text: `Sorry, I encountered an error: ${error.message}. Please try again or refresh the page.`,
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
