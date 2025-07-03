@@ -446,12 +446,58 @@ class AIService:
         responses = []
         for result in function_results:
             if result.get("success"):
-                message = result.get("message", "Function executed successfully")
-                # Format as bullet point
-                responses.append(f"• {message}")
+                # Handle different types of results with detailed formatting
+                if result.get("analysis_type") == "trends":
+                    trends = result.get("trends", {})
+                    responses.append("📈 **TREND ANALYSIS RESULTS:**")
+                    for column, trend_data in trends.items():
+                        direction = trend_data.get("trend_direction", "unknown")
+                        growth = trend_data.get("growth_rate_percent", 0)
+                        volatility = trend_data.get("volatility", 0)
+                        
+                        direction_emoji = "📈" if direction == "increasing" else "📉" if direction == "decreasing" else "➡️"
+                        responses.append(f"• **{column}**: {direction_emoji} {direction.title()} trend")
+                        responses.append(f"  ◦ Growth rate: {growth:+.1f}%")
+                        responses.append(f"  ◦ Volatility: {volatility:.2f}")
+                        
+                elif result.get("analysis_type") == "detailed":
+                    insights = result.get("insights", {})
+                    if "statistical_insights" in insights:
+                        responses.append("📊 **STATISTICAL ANALYSIS:**")
+                        stats = insights["statistical_insights"]
+                        for col, data in list(stats.items())[:3]:  # Show top 3 columns
+                            responses.append(f"• **{col}**: Mean = {data.get('mean', 0):.0f}, Range = {data.get('range', 0):.0f}")
+                    
+                    if "recommendations" in insights:
+                        responses.append("\n💡 **KEY RECOMMENDATIONS:**")
+                        for rec in insights["recommendations"][:5]:  # Top 5 recommendations
+                            responses.append(f"{rec}")
+                            
+                elif result.get("chart_config"):
+                    chart_type = result.get("chart_config", {}).get("type", "chart")
+                    responses.append(f"📊 Generated interactive {chart_type} chart")
+                    responses.append("• Chart is now displayed in the main area")
+                    
+                elif result.get("dashboard_config"):
+                    chart_count = len(result.get("dashboard_config", {}).get("charts", []))
+                    responses.append(f"🎛️ Created dashboard with {chart_count} interactive charts")
+                    responses.append("• Dashboard is now displayed in the main area")
+                    
+                elif result.get("forecast"):
+                    forecast_data = result.get("forecast", {})
+                    column = forecast_data.get("column", "")
+                    forecasts = forecast_data.get("forecasts", [])
+                    responses.append(f"🔮 **FORECAST for {column}:**")
+                    for i, value in enumerate(forecasts, 1):
+                        responses.append(f"• Period {i}: {value:.0f}")
+                        
+                else:
+                    # Default message formatting
+                    message = result.get("message", "Function executed successfully")
+                    responses.append(f"• {message}")
             else:
                 error_msg = result.get('error', 'Unknown error')
-                responses.append(f"• Error: {error_msg}")
+                responses.append(f"❌ Error: {error_msg}")
         
         return "\n".join(responses)
     
