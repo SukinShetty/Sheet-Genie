@@ -190,6 +190,84 @@ class AIService:
                             "required": ["range_spec", "format_type"]
                         }
                     }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "generate_insights",
+                        "description": "Generate comprehensive data insights and analytics",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "analysis_type": {
+                                    "type": "string",
+                                    "enum": ["summary", "detailed", "trends", "correlations"],
+                                    "description": "Type of analysis to perform"
+                                }
+                            },
+                            "required": ["analysis_type"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "suggest_chart",
+                        "description": "Suggest the best chart type for data visualization",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "x_column": {
+                                    "type": "string",
+                                    "description": "Column name for x-axis"
+                                },
+                                "y_column": {
+                                    "type": "string",
+                                    "description": "Column name for y-axis"
+                                }
+                            },
+                            "required": ["x_column", "y_column"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_dashboard",
+                        "description": "Create an automatic dashboard with multiple charts",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "dashboard_type": {
+                                    "type": "string",
+                                    "enum": ["overview", "detailed", "executive"],
+                                    "description": "Type of dashboard to create"
+                                }
+                            },
+                            "required": ["dashboard_type"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "forecast_data",
+                        "description": "Generate forecasts for numeric data",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "column": {
+                                    "type": "string",
+                                    "description": "Column name to forecast"
+                                },
+                                "periods": {
+                                    "type": "integer",
+                                    "description": "Number of periods to forecast"
+                                }
+                            },
+                            "required": ["column"]
+                        }
+                    }
                 }
             ]
             
