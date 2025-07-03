@@ -219,7 +219,7 @@ export const WelcomeModal = ({ isOpen, onClose, onNext }) => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Welcome to SheetGenie</h2>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
