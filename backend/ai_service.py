@@ -53,6 +53,8 @@ class AIService:
             # Fallback to sample data
             self.current_data = create_sample_data()
             self.excel_helper = ExcelHelper(self.current_data)
+            self.analytics = AdvancedAnalytics(self.current_data)
+            self.chart_generator = ChartGenerator(self.current_data)
     
     def get_default_data(self) -> List[List[Any]]:
         """Get default sample data"""
