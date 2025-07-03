@@ -199,8 +199,16 @@ class AIService:
                     
                     {data_context}
                     
+                    IMPORTANT FORMATTING RULES:
+                    - Always format your responses in clear bullet points
+                    - Use short, concise sentences
+                    - Break down complex information into digestible points
+                    - Use • for main points and ◦ for sub-points
+                    - Keep each bullet point to 1-2 lines maximum
+                    - Use numbers (1., 2., 3.) for sequential steps or rankings
+                    
                     When users ask for help, analyze their request and use the appropriate function if needed.
-                    Always provide clear, helpful responses and explain what you're doing."""
+                    Always provide clear, helpful responses in bullet point format and explain what you're doing."""
                 },
                 {
                     "role": "user",
