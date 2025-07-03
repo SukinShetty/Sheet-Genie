@@ -459,11 +459,17 @@ export const Chat = ({ isOpen, onClose, onDataUpdate }) => {
 };
 
 // Spreadsheet Component
-export const Spreadsheet = () => {
-  const [data, setData] = useState(sampleData);
+export const Spreadsheet = ({ data, onDataChange }) => {
+  const [currentData, setCurrentData] = useState(data || sampleData);
+
+  useEffect(() => {
+    if (data) {
+      setCurrentData(data);
+    }
+  }, [data]);
 
   const hotSettings = {
-    data,
+    data: currentData,
     rowHeaders: true,
     colHeaders: true,
     height: 'auto',
@@ -475,8 +481,8 @@ export const Spreadsheet = () => {
     dropdownMenu: true,
     multiColumnSorting: true,
     afterChange: (changes) => {
-      if (changes) {
-        console.log('Data changed:', changes);
+      if (changes && onDataChange) {
+        onDataChange(currentData);
       }
     }
   };
