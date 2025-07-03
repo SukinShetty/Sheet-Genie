@@ -51,10 +51,28 @@ export const TestChat = ({ isOpen, onClose }) => {
           text: data.response || 'I processed your request!',
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          functionResults: data.function_results
+          functionResults: data.function_results,
+          insights: data.function_results?.[0]?.insights,
+          dashboard: data.function_results?.[0]?.dashboard_config,
+          chartSuggestion: data.function_results?.[0]?.suggestions
         };
         
         setMessages(prev => [...prev, aiResponse]);
+        
+        // Handle special responses
+        if (data.function_results) {
+          const result = data.function_results[0];
+          
+          // Dashboard creation
+          if (result.dashboard_config) {
+            setActiveDashboard(result.dashboard_config);
+          }
+          
+          // Chart suggestions
+          if (result.chart_config) {
+            setActiveChart(result.chart_config);
+          }
+        }
         
       } catch (error) {
         console.error('Error sending message:', error);
