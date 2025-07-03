@@ -169,7 +169,10 @@ function App() {
           {/* File Upload Section */}
           {!currentFile && (
             <div className="p-4">
-              <FileUpload onFileUpload={handleFileUpload} />
+              <FileUpload 
+                onFileUpload={handleFileUpload} 
+                onGoogleSheetLoad={handleGoogleSheetLoad}
+              />
             </div>
           )}
 
