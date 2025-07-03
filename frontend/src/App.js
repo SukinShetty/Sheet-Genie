@@ -240,7 +240,10 @@ function App() {
           </div>
 
           {/* Spreadsheet Component */}
-          <Spreadsheet />
+          <Spreadsheet 
+            data={spreadsheetData}
+            onDataChange={handleSpreadsheetChange}
+          />
         </div>
 
         {/* Chat Panel */}
