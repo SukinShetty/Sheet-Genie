@@ -188,6 +188,21 @@ async def get_google_sheets_help():
         logging.error(f"Error getting Google Sheets help: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/set-spreadsheet-data")
+async def set_spreadsheet_data(data: SpreadsheetData):
+    """Set spreadsheet data for processing"""
+    try:
+        ai_service.set_spreadsheet_data(data.data)
+        return {
+            "success": True,
+            "message": "Spreadsheet data set successfully",
+            "rows": len(data.data) - 1,  # Subtract header row
+            "columns": len(data.data[0]) if data.data else 0
+        }
+    except Exception as e:
+        logging.error(f"Error setting spreadsheet data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(message: ChatMessage):
     """Process chat message with AI"""
