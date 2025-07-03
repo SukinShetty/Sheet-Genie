@@ -106,6 +106,30 @@ function App() {
     setShowChat(true);
   };
 
+  const handleDataUpdate = async (newData) => {
+    // Update spreadsheet data from AI responses
+    setSpreadsheetData(newData);
+    
+    // Send updated data to backend
+    try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/set-spreadsheet-data`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: newData
+        })
+      });
+    } catch (error) {
+      console.error('Error updating spreadsheet data:', error);
+    }
+  };
+
+  const handleSpreadsheetChange = (data) => {
+    setSpreadsheetData(data);
+  };
+
   return (
     <div className="App h-screen flex flex-col bg-gray-100">
       {/* Hidden file input */}
