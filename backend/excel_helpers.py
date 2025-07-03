@@ -573,6 +573,19 @@ class ExcelHelper:
                 return col
         
         return None
+    
+    def export_to_excel(self, filename: str = None) -> bytes:
+        """Export the dataframe to Excel format"""
+        if filename is None:
+            filename = "updated_spreadsheet.xlsx"
+        
+        # Create Excel file in memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            self.df.to_excel(writer, sheet_name='Sheet1', index=False)
+        
+        output.seek(0)
+        return output.getvalue()
 
 
 def create_sample_data() -> pd.DataFrame:
