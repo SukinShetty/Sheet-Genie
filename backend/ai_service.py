@@ -112,28 +112,29 @@ class AIService:
                 {
                     "type": "function",
                     "function": {
-                        "name": "create_pivot",
-                        "description": "Create a pivot table from the data",
+                        "name": "query_data",
+                        "description": "Query and analyze specific data based on user questions - answers questions like 'how many', 'which products', 'what is the total', etc.",
                         "parameters": {
                             "type": "object",
                             "properties": {
-                                "rows": {
-                                    "type": "array",
-                                    "items": {"type": "string"},
-                                    "description": "List of column names to use as rows"
-                                },
-                                "values": {
-                                    "type": "array",
-                                    "items": {"type": "string"},
-                                    "description": "List of column names to aggregate"
-                                },
-                                "aggfunc": {
+                                "question": {
                                     "type": "string",
-                                    "enum": ["sum", "mean", "count", "max", "min"],
-                                    "description": "Aggregation function to use"
+                                    "description": "The specific question to answer about the data"
+                                },
+                                "filter_column": {
+                                    "type": "string",
+                                    "description": "Column to filter by (optional)"
+                                },
+                                "filter_value": {
+                                    "type": "string", 
+                                    "description": "Value to filter for (optional)"
+                                },
+                                "count_column": {
+                                    "type": "string",
+                                    "description": "Column to count or analyze (optional)"
                                 }
                             },
-                            "required": ["rows", "values"]
+                            "required": ["question"]
                         }
                     }
                 },
