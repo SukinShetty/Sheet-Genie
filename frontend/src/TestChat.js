@@ -63,14 +63,15 @@ export const TestChat = ({ isOpen, onClose }) => {
         if (data.function_results) {
           const result = data.function_results[0];
           
+          // Chart generation
+          if (result.success && (result.type || result.chart_type)) {
+            console.log('Chart data received:', result);
+            setActiveChart(result);
+          }
+          
           // Dashboard creation
           if (result.dashboard_config) {
             setActiveDashboard(result.dashboard_config);
-          }
-          
-          // Chart suggestions
-          if (result.chart_config) {
-            setActiveChart(result.chart_config);
           }
         }
         
