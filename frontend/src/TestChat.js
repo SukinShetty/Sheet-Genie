@@ -59,6 +59,12 @@ export const TestChat = ({ isOpen, onClose, onDataUpdate }) => {
         
         setMessages(prev => [...prev, aiResponse]);
         
+        // Update spreadsheet data if provided
+        if (data.updated_data && onDataUpdate) {
+          console.log('Updating spreadsheet data:', data.updated_data);
+          onDataUpdate(data.updated_data);
+        }
+        
         // Handle special responses
         if (data.function_results) {
           data.function_results.forEach(result => {
