@@ -61,18 +61,23 @@ export const TestChat = ({ isOpen, onClose }) => {
         
         // Handle special responses
         if (data.function_results) {
-          const result = data.function_results[0];
-          
-          // Chart generation
-          if (result.success && (result.type || result.chart_type)) {
-            console.log('Chart data received:', result);
-            setActiveChart(result);
-          }
-          
-          // Dashboard creation
-          if (result.dashboard_config) {
-            setActiveDashboard(result.dashboard_config);
-          }
+          data.function_results.forEach(result => {
+            console.log('Processing function result:', result);
+            
+            // Chart generation - check for chart data in various formats
+            if (result.success && result.type && result.data && result.config) {
+              console.log('Chart detected:', result);
+              setActiveChart(result);
+              setActiveDashboard(null); // Clear dashboard when showing single chart
+            }
+            
+            // Dashboard creation
+            else if (result.dashboard_config) {
+              console.log('Dashboard detected:', result.dashboard_config);
+              setActiveDashboard(result.dashboard_config);
+              setActiveChart(null); // Clear single chart when showing dashboard
+            }
+          });
         }
         
       } catch (error) {
