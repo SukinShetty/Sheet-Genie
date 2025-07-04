@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SheetGenie Chart Test</title>
+    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .chart-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background: #16a34a; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        button:hover { background: #15803d; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fecaca; color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 SheetGenie Chart Generator</h1>
+        <p>Test the AI chart generation directly!</p>
+        
+        <div>
+            <button onclick="testChart('create bar chart')">Generate Bar Chart</button>
+            <button onclick="testChart('create line chart')">Generate Line Chart</button>
+            <button onclick="testChart('create pie chart')">Generate Pie Chart</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="chart-container" class="chart-container" style="display:none;">
+            <h3 id="chart-title">Chart</h3>
+            <div id="chart" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://3a451354-adc4-4fe6-bf0f-1ab9e8a820d6.preview.emergentagent.com/api';
+        
+        async function testChart(message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="status">🔄 Generating chart...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.function_results && data.function_results[0]) {
+                    const chartData = data.function_results[0];
+                    
+                    if (chartData.type && chartData.data) {
+                        statusDiv.innerHTML = '<div class="status success">✅ Chart generated successfully!</div>';
+                        renderChart(chartData);
+                    } else {
+                        statusDiv.innerHTML = '<div class="status error">❌ No chart data received</div>';
+                    }
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Failed to generate chart</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function renderChart(chartData) {
+            const container = document.getElementById('chart-container');
+            const title = document.getElementById('chart-title');
+            const chartDiv = document.getElementById('chart');
+            
+            title.textContent = chartData.title || 'Generated Chart';
+            container.style.display = 'block';
+            
+            // Simple chart rendering (you could enhance this with actual Recharts)
+            let html = `
+                <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+                    <h4>Chart Type: ${chartData.type}</h4>
+                    <p>Data Points: ${chartData.data.length}</p>
+                    <h5>Sample Data:</h5>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f3f4f6;">
+                            <th style="border: 1px solid #ccc; padding: 8px;">${chartData.config.xAxisKey}</th>
+                            <th style="border: 1px solid #ccc; padding: 8px;">${chartData.config.yAxisKey}</th>
+                        </tr>
+            `;
+            
+            chartData.data.slice(0, 5).forEach(item => {
+                html += `
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.xAxisKey]}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.yAxisKey]}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `</table>
+                <p style="margin-top: 10px;"><strong>Status:</strong> ✅ Chart data is valid and ready for visualization!</p>
+            </div>`;
+            
+            chartDiv.innerHTML = html;
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            document.getElementById('status').innerHTML = '<div class="status">📊 Ready to generate charts! Click a button above.</div>';
+        };
+    </script>
+</body>
+</html>
