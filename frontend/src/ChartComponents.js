@@ -69,7 +69,7 @@ export const EnhancedBarChart = ({ data, config, title }) => {
 
 // Enhanced Line Chart Component
 export const EnhancedLineChart = ({ data, config, title }) => {
-  const { xAxisKey, yAxisKey, lineColor = '#8884d8' } = config;
+  const { xAxisKey, yAxisKeys = [config.yAxisKey], lineColors = ['#8884d8'] } = config;
   
   return (
     <div className="w-full h-full">
@@ -83,14 +83,21 @@ export const EnhancedLineChart = ({ data, config, title }) => {
             formatter={(value, name) => [value.toLocaleString(), name]}
             labelFormatter={(label) => `${xAxisKey}: ${label}`}
           />
-          <Line 
-            type="monotone" 
-            dataKey={yAxisKey} 
-            stroke={lineColor} 
-            strokeWidth={3}
-            dot={{ fill: lineColor, strokeWidth: 2, r: 6 }}
-            activeDot={{ r: 8, stroke: lineColor, strokeWidth: 2 }}
-          />
+          {config.showLegend && <Legend />}
+          
+          {/* Render multiple lines for comparison */}
+          {yAxisKeys.map((yKey, index) => (
+            <Line 
+              key={yKey}
+              type="monotone" 
+              dataKey={yKey} 
+              stroke={lineColors[index] || lineColors[0]}
+              strokeWidth={3}
+              dot={{ fill: lineColors[index] || lineColors[0], strokeWidth: 2, r: 6 }}
+              activeDot={{ r: 8, stroke: lineColors[index] || lineColors[0], strokeWidth: 2 }}
+              name={yKey}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>
