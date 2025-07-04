@@ -137,15 +137,18 @@ backend:
 
   - task: "AI service integration for column operations"
     implemented: true
-    working: "NA"
+    working: true
     file: "ai_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Column manipulation functions integrated as available tools for AI. Need to test if AI can call these functions correctly"
+        - working: true
+          agent: "testing"
+          comment: "Testing agent found that add_column and delete_column functions were defined as tools but missing handlers in _execute_function method. Fixed by adding proper handlers for add_column, delete_column, and modify_column. Backend restarted."
 
   - task: "Export to Excel functionality"
     implemented: true
