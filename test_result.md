@@ -214,3 +214,5 @@ agent_communication:
       message: "Found the issue - add_column and delete_column functions were defined as tools but missing handlers in _execute_function method. Fixed by adding proper handlers. Backend restarted."
     - agent: "main"
       message: "Backend has been restarted. Column manipulation should now work properly. User can now test adding columns with 10% higher values."
+    - agent: "main"
+      message: "Fixed frontend rendering issue by adding onDataUpdate callback to TestChat component. Now when AI performs column manipulation, the spreadsheet display will update with the new data. Frontend restarted."
