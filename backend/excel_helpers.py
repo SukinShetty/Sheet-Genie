@@ -613,7 +613,164 @@ class ExcelHelper:
             if pd.api.types.is_numeric_dtype(self.df[col]):
                 return col
         
-        return None
+    def add_column(self, column_name: str, formula_description: str, base_column: str, operation: str, value: float = None) -> Dict[str, Any]:
+        """
+        Add a new column with calculated values
+        """
+        try:
+            if column_name in self.df.columns:
+                return {
+                    "success": False,
+                    "error": f"Column '{column_name}' already exists",
+                    "message": f"Column '{column_name}' already exists. Use modify_column instead."
+                }
+            
+            if base_column not in self.df.columns:
+                return {
+                    "success": False,
+                    "error": f"Base column '{base_column}' not found",
+                    "message": f"Cannot find base column '{base_column}'"
+                }
+            
+            # Get base column data
+            base_data = pd.to_numeric(self.df[base_column], errors='coerce').fillna(0)
+            
+            # Perform operation
+            if operation == "percentage_increase":
+                if value is None:
+                    value = 0.1  # Default 10% increase
+                new_data = base_data * (1 + value)
+            elif operation == "percentage_decrease":
+                if value is None:
+                    value = 0.1  # Default 10% decrease
+                new_data = base_data * (1 - value)
+            elif operation == "multiply":
+                if value is None:
+                    value = 1
+                new_data = base_data * value
+            elif operation == "add":
+                if value is None:
+                    value = 0
+                new_data = base_data + value
+            elif operation == "subtract":
+                if value is None:
+                    value = 0
+                new_data = base_data - value
+            elif operation == "copy":
+                new_data = base_data
+            else:
+                return {
+                    "success": False,
+                    "error": f"Unknown operation '{operation}'",
+                    "message": f"Operation '{operation}' is not supported"
+                }
+            
+            # Add the new column
+            self.df[column_name] = new_data.round(2)
+            
+            return {
+                "success": True,
+                "column_name": column_name,
+                "operation": operation,
+                "base_column": base_column,
+                "formula_description": formula_description,
+                "rows_affected": len(self.df),
+                "sample_values": new_data.head(3).tolist(),
+                "message": f"Added column '{column_name}' with {formula_description}"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error adding column: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Could not add column '{column_name}'"
+            }
+    
+    def delete_column(self, column_name: str) -> Dict[str, Any]:
+        """
+        Delete a column from the spreadsheet
+        """
+        try:
+            if column_name not in self.df.columns:
+                return {
+                    "success": False,
+                    "error": f"Column '{column_name}' not found",
+                    "message": f"Cannot find column '{column_name}' to delete"
+                }
+            
+            # Remove the column
+            self.df = self.df.drop(columns=[column_name])
+            
+            return {
+                "success": True,
+                "column_name": column_name,
+                "remaining_columns": list(self.df.columns),
+                "message": f"Deleted column '{column_name}'"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error deleting column: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Could not delete column '{column_name}'"
+            }
+    
+    def modify_column(self, column_name: str, operation: str, value: float, description: str) -> Dict[str, Any]:
+        """
+        Modify values in an existing column
+        """
+        try:
+            if column_name not in self.df.columns:
+                return {
+                    "success": False,
+                    "error": f"Column '{column_name}' not found",
+                    "message": f"Cannot find column '{column_name}' to modify"
+                }
+            
+            # Get current column data
+            current_data = pd.to_numeric(self.df[column_name], errors='coerce').fillna(0)
+            
+            # Perform operation
+            if operation == "percentage_increase":
+                new_data = current_data * (1 + value)
+            elif operation == "percentage_decrease":
+                new_data = current_data * (1 - value)
+            elif operation == "multiply":
+                new_data = current_data * value
+            elif operation == "add":
+                new_data = current_data + value
+            elif operation == "subtract":
+                new_data = current_data - value
+            else:
+                return {
+                    "success": False,
+                    "error": f"Unknown operation '{operation}'",
+                    "message": f"Operation '{operation}' is not supported"
+                }
+            
+            # Update the column
+            self.df[column_name] = new_data.round(2)
+            
+            return {
+                "success": True,
+                "column_name": column_name,
+                "operation": operation,
+                "value": value,
+                "description": description,
+                "rows_affected": len(self.df),
+                "sample_values": new_data.head(3).tolist(),
+                "message": f"Modified column '{column_name}': {description}"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error modifying column: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Could not modify column '{column_name}'"
+            }
     
     def export_to_excel(self, filename: str = None) -> bytes:
         """Export the dataframe to Excel format"""
