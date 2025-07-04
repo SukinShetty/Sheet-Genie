@@ -144,7 +144,7 @@ class ExcelHelper:
     
     def generate_chart(self, chart_type: str, x_column: str, y_column: str, title: str = None) -> Dict[str, Any]:
         """
-        Generate a chart from the data
+        Generate a chart from the data for Recharts
         
         Args:
             chart_type: Type of chart ('bar', 'line', 'pie', 'scatter')
@@ -153,58 +153,89 @@ class ExcelHelper:
             title: Chart title
         
         Returns:
-            Dict with chart data and configuration
+            Dict with chart data and configuration for Recharts
         """
         try:
-            # Prepare data
-            x_data = self.df[x_column].tolist()
-            y_data = self.df[y_column].tolist()
+            # Prepare data for Recharts format
+            chart_data = []
+            for index, row in self.df.iterrows():
+                data_point = {}
+                
+                # Handle x-axis data
+                x_value = row[x_column]
+                if pd.isna(x_value):
+                    continue
+                data_point[x_column] = str(x_value)
+                
+                # Handle y-axis data
+                if y_column in self.df.columns:
+                    y_value = row[y_column]
+                    if pd.isna(y_value):
+                        y_value = 0
+                    else:
+                        try:
+                            # Try to convert to number
+                            y_value = float(pd.to_numeric(y_value, errors='coerce'))
+                            if pd.isna(y_value):
+                                y_value = 0
+                        except:
+                            y_value = 0
+                    data_point[y_column] = y_value
+                
+                chart_data.append(data_point)
             
             if title is None:
                 title = f"{y_column} by {x_column}"
             
-            # Create chart based on type
-            if chart_type.lower() == 'bar':
-                fig = px.bar(
-                    x=x_data, 
-                    y=y_data,
-                    labels={'x': x_column, 'y': y_column},
-                    title=title
-                )
-            elif chart_type.lower() == 'line':
-                fig = px.line(
-                    x=x_data, 
-                    y=y_data,
-                    labels={'x': x_column, 'y': y_column},
-                    title=title
-                )
-            elif chart_type.lower() == 'pie':
-                fig = px.pie(
-                    values=y_data, 
-                    names=x_data,
-                    title=title
-                )
-            elif chart_type.lower() == 'scatter':
-                fig = px.scatter(
-                    x=x_data, 
-                    y=y_data,
-                    labels={'x': x_column, 'y': y_column},
-                    title=title
-                )
-            else:
-                raise ValueError(f"Unsupported chart type: {chart_type}")
+            # Create Recharts-compatible configuration
+            config = {
+                "xAxisKey": x_column,
+                "yAxisKey": y_column,
+                "showGrid": True,
+                "showTooltip": True,
+                "showLegend": False,
+                "responsive": True
+            }
             
-            # Convert to JSON
-            chart_json = fig.to_json()
+            # Add type-specific configurations
+            if chart_type.lower() == 'bar':
+                config.update({
+                    "barColor": "#8884d8",
+                })
+            elif chart_type.lower() == 'line':
+                config.update({
+                    "lineColor": "#8884d8",
+                    "strokeWidth": 2,
+                    "showDots": True
+                })
+            elif chart_type.lower() == 'pie':
+                config.update({
+                    "nameKey": x_column,
+                    "valueKey": y_column,
+                    "colors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"],
+                    "innerRadius": 0,
+                    "outerRadius": 120
+                })
+            elif chart_type.lower() == 'area':
+                config.update({
+                    "areaColor": "#8884d8",
+                    "strokeColor": "#8884d8"
+                })
+            elif chart_type.lower() == 'scatter':
+                config.update({
+                    "dotColor": "#8884d8",
+                    "dotSize": 6
+                })
             
             return {
                 "success": True,
-                "chart_data": json.loads(chart_json),
-                "chart_type": chart_type,
+                "type": chart_type.lower(),
+                "data": chart_data,
+                "config": config,
+                "title": title,
                 "x_column": x_column,
                 "y_column": y_column,
-                "title": title,
-                "message": f"Generated {chart_type} chart"
+                "message": f"Generated {chart_type} chart with {len(chart_data)} data points"
             }
             
         except Exception as e:
