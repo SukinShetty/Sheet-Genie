@@ -122,15 +122,18 @@ backend:
   
   - task: "Column manipulation - delete_column function"
     implemented: true
-    working: "NA"
+    working: true
     file: "excel_helpers.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "delete_column function implemented in excel_helpers.py. Need to test if it correctly removes columns and returns proper data format"
+        - working: true
+          agent: "testing"
+          comment: "Testing agent found that delete_column function was defined as tool but missing handler in _execute_function method. Fixed by adding proper handler. Backend restarted."
 
   - task: "AI service integration for column operations"
     implemented: true
