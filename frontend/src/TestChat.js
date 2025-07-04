@@ -232,7 +232,14 @@ export const TestChat = ({ isOpen, onClose }) => {
         ) : activeChart ? (
           <div className="p-8">
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <ChartRenderer chartConfig={activeChart} />
+              <h2 className="text-xl font-bold text-gray-800 mb-4">{activeChart.title || 'Generated Chart'}</h2>
+              <div className="w-full h-96">
+                <ChartRenderer chartConfig={activeChart} />
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                <p>Chart Type: {activeChart.type}</p>
+                <p>Data Points: {activeChart.data?.length || 0}</p>
+              </div>
             </div>
           </div>
         ) : (
@@ -244,8 +251,8 @@ export const TestChat = ({ isOpen, onClose }) => {
               <div className="space-y-2 text-sm text-gray-600">
                 <p>• "Generate detailed insights"</p>
                 <p>• "Create dashboard"</p>
-                <p>• "Suggest chart for Product vs Sales"</p>
-                <p>• "Forecast next quarter"</p>
+                <p>• "Create bar chart for this data"</p>
+                <p>• "Show me trends analysis"</p>
               </div>
             </div>
           </div>
