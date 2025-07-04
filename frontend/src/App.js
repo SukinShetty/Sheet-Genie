@@ -262,6 +262,7 @@ function App() {
         <TestChat 
           isOpen={showChat} 
           onClose={() => setShowChat(false)}
+          onDataUpdate={handleSpreadsheetChange}
         />
       </div>
 
