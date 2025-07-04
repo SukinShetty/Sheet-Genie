@@ -29,7 +29,7 @@ const COLORS = {
 
 // Enhanced Bar Chart Component
 export const EnhancedBarChart = ({ data, config, title }) => {
-  const { xAxisKey, yAxisKey, barColor = '#8884d8' } = config;
+  const { xAxisKey, yAxisKeys = [config.yAxisKey], barColors = ['#8884d8'] } = config;
   
   return (
     <div className="w-full h-full">
@@ -49,11 +49,18 @@ export const EnhancedBarChart = ({ data, config, title }) => {
             formatter={(value, name) => [value.toLocaleString(), name]}
             labelFormatter={(label) => `${xAxisKey}: ${label}`}
           />
-          <Bar dataKey={yAxisKey} fill={barColor} radius={[4, 4, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS.modern[index % COLORS.modern.length]} />
-            ))}
-          </Bar>
+          {config.showLegend && <Legend />}
+          
+          {/* Render multiple bars for comparison */}
+          {yAxisKeys.map((yKey, index) => (
+            <Bar 
+              key={yKey}
+              dataKey={yKey} 
+              fill={barColors[index] || barColors[0]} 
+              radius={[4, 4, 0, 0]}
+              name={yKey}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </div>
