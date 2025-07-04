@@ -199,7 +199,10 @@ export const EnhancedScatterChart = ({ data, config, title }) => {
 
 // Chart Renderer Component
 export const ChartRenderer = ({ chartConfig, className = "" }) => {
+  console.log('ChartRenderer received:', chartConfig);
+  
   if (!chartConfig || !chartConfig.type) {
+    console.log('No chart config or type');
     return (
       <div className={`flex items-center justify-center h-64 bg-gray-100 rounded-lg ${className}`}>
         <p className="text-gray-500">No chart data available</p>
@@ -208,6 +211,16 @@ export const ChartRenderer = ({ chartConfig, className = "" }) => {
   }
 
   const { type, data, title, config } = chartConfig;
+  
+  console.log('Chart type:', type, 'Data length:', data?.length);
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <div className={`flex items-center justify-center h-64 bg-gray-100 rounded-lg ${className}`}>
+        <p className="text-gray-500">No data available for chart</p>
+      </div>
+    );
+  }
 
   const chartProps = {
     data,
@@ -227,6 +240,7 @@ export const ChartRenderer = ({ chartConfig, className = "" }) => {
     case 'scatter':
       return <EnhancedScatterChart {...chartProps} />;
     default:
+      console.log('Unknown chart type:', type, 'using bar chart');
       return <EnhancedBarChart {...chartProps} />;
   }
 };
