@@ -149,13 +149,16 @@ class ExcelHelper:
         Args:
             chart_type: Type of chart ('bar', 'line', 'pie', 'scatter')
             x_column: Column name for x-axis
-            y_column: Column name for y-axis
+            y_column: Column name for y-axis (can be comma-separated for multiple series)
             title: Chart title
         
         Returns:
             Dict with chart data and configuration for Recharts
         """
         try:
+            # Handle multiple y-columns for comparisons
+            y_columns = [col.strip() for col in y_column.split(',')]
+            
             # Prepare data for Recharts format
             chart_data = []
             for index, row in self.df.iterrows():
@@ -167,59 +170,65 @@ class ExcelHelper:
                     continue
                 data_point[x_column] = str(x_value)
                 
-                # Handle y-axis data
-                if y_column in self.df.columns:
-                    y_value = row[y_column]
-                    if pd.isna(y_value):
-                        y_value = 0
-                    else:
-                        try:
-                            # Try to convert to number
-                            y_value = float(pd.to_numeric(y_value, errors='coerce'))
-                            if pd.isna(y_value):
-                                y_value = 0
-                        except:
+                # Handle y-axis data (potentially multiple columns)
+                for y_col in y_columns:
+                    if y_col in self.df.columns:
+                        y_value = row[y_col]
+                        if pd.isna(y_value):
                             y_value = 0
-                    data_point[y_column] = y_value
+                        else:
+                            try:
+                                # Try to convert to number
+                                y_value = float(pd.to_numeric(y_value, errors='coerce'))
+                                if pd.isna(y_value):
+                                    y_value = 0
+                            except:
+                                y_value = 0
+                        data_point[y_col] = y_value
                 
                 chart_data.append(data_point)
             
             if title is None:
-                title = f"{y_column} by {x_column}"
+                if len(y_columns) > 1:
+                    title = f"{' vs '.join(y_columns)} by {x_column}"
+                else:
+                    title = f"{y_columns[0]} by {x_column}"
             
             # Create Recharts-compatible configuration
             config = {
                 "xAxisKey": x_column,
-                "yAxisKey": y_column,
+                "yAxisKey": y_columns[0],  # Primary y-axis
+                "yAxisKeys": y_columns,    # All y-axis keys for multi-series
                 "showGrid": True,
                 "showTooltip": True,
-                "showLegend": False,
+                "showLegend": len(y_columns) > 1,
                 "responsive": True
             }
             
             # Add type-specific configurations
             if chart_type.lower() == 'bar':
                 config.update({
-                    "barColor": "#8884d8",
+                    "barColors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"][:len(y_columns)],
                 })
             elif chart_type.lower() == 'line':
                 config.update({
-                    "lineColor": "#8884d8",
+                    "lineColors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"][:len(y_columns)],
                     "strokeWidth": 2,
                     "showDots": True
                 })
             elif chart_type.lower() == 'pie':
+                # For pie charts, use the first y-column
                 config.update({
                     "nameKey": x_column,
-                    "valueKey": y_column,
+                    "valueKey": y_columns[0],
                     "colors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"],
                     "innerRadius": 0,
                     "outerRadius": 120
                 })
             elif chart_type.lower() == 'area':
                 config.update({
-                    "areaColor": "#8884d8",
-                    "strokeColor": "#8884d8"
+                    "areaColors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"][:len(y_columns)],
+                    "strokeColors": ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"][:len(y_columns)]
                 })
             elif chart_type.lower() == 'scatter':
                 config.update({
@@ -235,7 +244,8 @@ class ExcelHelper:
                 "title": title,
                 "x_column": x_column,
                 "y_column": y_column,
-                "message": f"Generated {chart_type} chart with {len(chart_data)} data points"
+                "y_columns": y_columns,
+                "message": f"Generated {chart_type} chart with {len(chart_data)} data points comparing {len(y_columns)} series"
             }
             
         except Exception as e:
