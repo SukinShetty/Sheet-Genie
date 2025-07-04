@@ -142,22 +142,22 @@ class AIService:
                     "type": "function",
                     "function": {
                         "name": "generate_chart",
-                        "description": "Generate a chart from the data",
+                        "description": "Generate a chart from the data. For comparisons like 'Q1 vs Q2', use comma-separated column names.",
                         "parameters": {
                             "type": "object",
                             "properties": {
                                 "chart_type": {
                                     "type": "string",
-                                    "enum": ["bar", "line", "pie", "scatter"],
+                                    "enum": ["bar", "line", "pie", "scatter", "area"],
                                     "description": "Type of chart to generate"
                                 },
                                 "x_column": {
                                     "type": "string",
-                                    "description": "Column name for x-axis"
+                                    "description": "Column name for x-axis (categories)"
                                 },
                                 "y_column": {
                                     "type": "string",
-                                    "description": "Column name for y-axis"
+                                    "description": "Column name(s) for y-axis. For comparisons, use comma-separated values like 'Q1 Sales,Q2 Sales'"
                                 },
                                 "title": {
                                     "type": "string",
