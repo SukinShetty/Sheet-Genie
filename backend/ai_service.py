@@ -171,26 +171,81 @@ class AIService:
                 {
                     "type": "function",
                     "function": {
-                        "name": "format_cells",
-                        "description": "Format cells in the specified range",
+                        "name": "add_column",
+                        "description": "Add a new column to the spreadsheet with calculated values",
                         "parameters": {
                             "type": "object",
                             "properties": {
-                                "range_spec": {
+                                "column_name": {
                                     "type": "string",
-                                    "description": "Range specification like 'A1:A10' or 'B2:D5'"
+                                    "description": "Name for the new column"
                                 },
-                                "format_type": {
+                                "formula_description": {
                                     "type": "string",
-                                    "enum": ["currency", "percentage", "date", "bold", "color"],
-                                    "description": "Type of formatting to apply"
+                                    "description": "Description of how to calculate the values (e.g., '10% higher than Q2 Sales')"
                                 },
-                                "format_value": {
+                                "base_column": {
                                     "type": "string",
-                                    "description": "Additional format value (e.g., color code)"
+                                    "description": "Column to base calculations on"
+                                },
+                                "operation": {
+                                    "type": "string",
+                                    "enum": ["multiply", "add", "subtract", "percentage_increase", "percentage_decrease", "copy"],
+                                    "description": "Type of operation to perform"
+                                },
+                                "value": {
+                                    "type": "number",
+                                    "description": "Value to use in the operation (e.g., 1.1 for 10% increase, 0.1 for 10% of value)"
                                 }
                             },
-                            "required": ["range_spec", "format_type"]
+                            "required": ["column_name", "formula_description", "base_column", "operation"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "delete_column",
+                        "description": "Delete a column from the spreadsheet",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "column_name": {
+                                    "type": "string",
+                                    "description": "Name of the column to delete"
+                                }
+                            },
+                            "required": ["column_name"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "modify_column",
+                        "description": "Modify values in an existing column",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "column_name": {
+                                    "type": "string",
+                                    "description": "Name of the column to modify"
+                                },
+                                "operation": {
+                                    "type": "string",
+                                    "enum": ["multiply", "add", "subtract", "percentage_increase", "percentage_decrease"],
+                                    "description": "Type of operation to perform"
+                                },
+                                "value": {
+                                    "type": "number",
+                                    "description": "Value to use in the operation"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description of the modification"
+                                }
+                            },
+                            "required": ["column_name", "operation", "value", "description"]
                         }
                     }
                 },
