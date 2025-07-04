@@ -76,30 +76,80 @@
             title.textContent = chartData.title || 'Generated Chart';
             container.style.display = 'block';
             
-            // Simple chart rendering (you could enhance this with actual Recharts)
+            // Enhanced chart rendering for comparisons
             let html = `
-                <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-                    <h4>Chart Type: ${chartData.type}</h4>
-                    <p>Data Points: ${chartData.data.length}</p>
-                    <h5>Sample Data:</h5>
+                <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; background: #f9fafb;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="margin: 0; color: #1f2937;">📊 ${chartData.type.toUpperCase()} Chart</h4>
+                            <p style="margin: 5px 0; color: #6b7280;">Data Points: ${chartData.data.length}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; color: #059669; font-weight: bold;">✅ Multi-Series Chart</p>
+                            <p style="margin: 5px 0; color: #6b7280;">Series: ${chartData.y_columns ? chartData.y_columns.length : 1}</p>
+                        </div>
+                    </div>
+            `;
+            
+            // Show the comparison data
+            if (chartData.y_columns && chartData.y_columns.length > 1) {
+                html += `
+                    <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h5 style="margin: 0 0 10px 0; color: #065f46;">🔄 Comparison Data (${chartData.y_columns.join(' vs ')})</h5>
+                        <table style="width: 100%; border-collapse: collapse; background: white;">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left;">${chartData.config.xAxisKey}</th>
+                `;
+                
+                chartData.y_columns.forEach((col, index) => {
+                    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1'];
+                    html += `<th style="border: 1px solid #d1d5db; padding: 8px; color: ${colors[index]}; text-align: right;">${col}</th>`;
+                });
+                
+                html += `</tr></thead><tbody>`;
+                
+                chartData.data.forEach(item => {
+                    html += `<tr>
+                        <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">${item[chartData.config.xAxisKey]}</td>`;
+                    
+                    chartData.y_columns.forEach(col => {
+                        const value = item[col] || 0;
+                        html += `<td style="border: 1px solid #d1d5db; padding: 8px; text-align: right;">${value.toLocaleString()}</td>`;
+                    });
+                    
+                    html += `</tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+            } else {
+                // Single series display
+                html += `
+                    <h5 style="color: #374151;">📈 Chart Data:</h5>
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr style="background: #f3f4f6;">
                             <th style="border: 1px solid #ccc; padding: 8px;">${chartData.config.xAxisKey}</th>
                             <th style="border: 1px solid #ccc; padding: 8px;">${chartData.config.yAxisKey}</th>
                         </tr>
-            `;
-            
-            chartData.data.slice(0, 5).forEach(item => {
-                html += `
-                    <tr>
-                        <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.xAxisKey]}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.yAxisKey]}</td>
-                    </tr>
                 `;
-            });
+                
+                chartData.data.slice(0, 5).forEach(item => {
+                    html += `
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.xAxisKey]}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">${item[chartData.config.yAxisKey]}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</table>`;
+            }
             
-            html += `</table>
-                <p style="margin-top: 10px;"><strong>Status:</strong> ✅ Chart data is valid and ready for visualization!</p>
+            html += `
+                <div style="margin-top: 15px; padding: 10px; background: #dbeafe; border-radius: 6px;">
+                    <p style="margin: 0;"><strong>🎯 Chart Status:</strong> ✅ Perfect comparison data ready for visualization!</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #1e40af;">Legend: ${chartData.config.showLegend ? 'Enabled' : 'Disabled'} | Grid: ${chartData.config.showGrid ? 'Enabled' : 'Disabled'}</p>
+                </div>
             </div>`;
             
             chartDiv.innerHTML = html;
