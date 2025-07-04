@@ -164,16 +164,19 @@ backend:
 
 frontend:
   - task: "Handle column manipulation data display"
-    implemented: false
-    working: false
+    implemented: true
+    working: "NA"
     file: "TestChat.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: false
           agent: "user"
           comment: "User reported frontend error: received objects instead of strings when AI tried to add column. Frontend cannot properly render the modified data structure"
+        - working: "NA"
+          agent: "main"
+          comment: "Fixed by adding onDataUpdate callback to TestChat component. Now TestChat can update the main App's spreadsheet data when AI performs column manipulation. Frontend restarted."
 
   - task: "Chat panel integration in main App"
     implemented: true
