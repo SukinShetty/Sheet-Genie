@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Send, X, Brain, BarChart3, TrendingUp, Eye } from 'lucide-react';
 import { ChartRenderer, DashboardGrid, ChartSuggestion } from './ChartComponents';
 
-export const TestChat = ({ isOpen, onClose }) => {
+export const TestChat = ({ isOpen, onClose, onDataUpdate }) => {
   const [messages, setMessages] = useState([
     { id: 1, text: "Hello! I'm SheetGenie AI. Try these advanced commands: 'Generate insights', 'Create dashboard', or 'Suggest chart'!", sender: 'ai', timestamp: '10:30 AM' }
   ]);
