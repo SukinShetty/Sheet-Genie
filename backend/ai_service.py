@@ -467,6 +467,25 @@ class AIService:
                     function_args["format_type"],
                     function_args.get("format_value")
                 )
+            elif function_name == "add_column":
+                return self.excel_helper.add_column(
+                    column_name=function_args["column_name"],
+                    formula_description=function_args["formula_description"],
+                    base_column=function_args["base_column"],
+                    operation=function_args["operation"],
+                    value=function_args.get("value")
+                )
+            elif function_name == "delete_column":
+                return self.excel_helper.delete_column(
+                    column_name=function_args["column_name"]
+                )
+            elif function_name == "modify_column":
+                return self.excel_helper.modify_column(
+                    column_name=function_args["column_name"],
+                    operation=function_args["operation"],
+                    value=function_args["value"],
+                    description=function_args["description"]
+                )
             elif function_name == "generate_insights":
                 return self._generate_insights(function_args["analysis_type"])
             elif function_name == "suggest_chart":
