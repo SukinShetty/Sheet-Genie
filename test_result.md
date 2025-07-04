@@ -207,3 +207,7 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "Added column manipulation functions to backend. Need to test if they work correctly and fix frontend rendering issue where objects are returned instead of strings. Backend needs restart first."
+    - agent: "testing"
+      message: "Found the issue - add_column and delete_column functions were defined as tools but missing handlers in _execute_function method. Fixed by adding proper handlers. Backend restarted."
+    - agent: "main"
+      message: "Backend has been restarted. Column manipulation should now work properly. User can now test adding columns with 10% higher values."
